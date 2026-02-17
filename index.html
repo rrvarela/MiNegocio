@@ -47,14 +47,14 @@
             display: flex; gap: 6px; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 20px;
         }
 
-        .punto { width: 8px; height: 8px; background: rgba(255,255,255,0.4); border-radius: 50%; cursor: pointer; }
+        .punto { width: 10px; height: 10px; background: rgba(255,255,255,0.4); border-radius: 50%; cursor: pointer; }
         .punto.activo { background: white; transform: scale(1.2); }
 
         .contenido { padding: 20px; text-align: center; flex-grow: 1; }
         .precio { font-size: 1.4rem; font-weight: bold; color: var(--acento); display: block; margin: 10px 0; }
         .badge { font-size: 0.75rem; padding: 5px 12px; border-radius: 50px; font-weight: bold; display: inline-block; margin-bottom: 10px; }
         .disponible { background: #d4edda; color: #155724; }
-        .agotado { background: #f8d7da; color: #721c24; opacity: 0.8; }
+        .agotado { background: #f8d7da; color: #721c24; }
 
         .btn-nav {
             position: absolute; top: 50%; transform: translateY(-50%);
@@ -66,7 +66,7 @@
 
         .seccion-contacto { background: white; padding: 50px 20px; }
         .btn-seleccionar { 
-            background: var(--acento); color: white; border: none; padding: 10px; 
+            background: var(--acento); color: white; border: none; padding: 12px; 
             border-radius: 5px; width: 100%; cursor: pointer; font-weight: bold; 
         }
         .btn-seleccionar:disabled { background: #ccc; cursor: not-allowed; }
@@ -104,22 +104,20 @@
         let productos = [];
         let scrollPos = 0;
 
-        // FUNCIÓN MEJORADA: Limpia cualquier enlace de Google Drive para hacerlo imagen directa
-        function corregirImagen(url) {
+        // Función que extrae el ID y genera el enlace directo de visualización compatible con GitHub (HTTPS)
+        function convertirLinkDrive(url) {
             if (!url || url.trim().length < 10) return null;
+            const cleanUrl = url.trim().replace(/"/g, '');
             let id = "";
-            const cleanUrl = url.trim();
-            
+
             if (cleanUrl.includes("id=")) {
                 id = cleanUrl.split("id=")[1].split("&")[0];
             } else if (cleanUrl.includes("/d/")) {
                 id = cleanUrl.split("/d/")[1].split("/")[0];
-            } else if (cleanUrl.includes("open?")) {
-                id = cleanUrl.split("id=")[1].split("&")[0];
             }
 
-            // Usamos el servidor de contenido de Google que es el más estable para imágenes
-            return id ? `https://lh3.googleusercontent.com/u/0/d/${id}` : cleanUrl;
+            // Formato oficial de miniatura de alta resolución (funciona mejor en webs externas)
+            return id ? `https://lh3.googleusercontent.com/d/${id}` : cleanUrl;
         }
 
         async function cargarDatos() {
@@ -131,22 +129,18 @@
                 productos = filas.slice(1).map(f => {
                     const c = f.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     
-                    // Aseguramos que limpiamos comillas y espacios de los enlaces
-                    const cleanLink = (str) => str ? str.replace(/"/g, '').trim() : null;
+                    const img1 = convertirLinkDrive(c[2]);
+                    const img2 = convertirLinkDrive(c[3]);
+                    const img3 = convertirLinkDrive(c[4]);
+                    const imgs = [img1, img2, img3].filter(i => i !== null);
 
-                    const imgs = [
-                        corregirImagen(cleanLink(c[2])), 
-                        corregirImagen(cleanLink(c[3])), 
-                        corregirImagen(cleanLink(c[4]))
-                    ].filter(i => i !== null);
-
-                    const stockValue = cleanLink(c[5]);
+                    const stockValue = c[5] ? c[5].trim().replace(/"/g, '') : "0";
                     const stockNum = parseInt(stockValue);
 
                     return {
-                        nombre: cleanLink(c[0]),
-                        precio: cleanLink(c[1]),
-                        imagenes: imgs.length > 0 ? imgs : ["https://via.placeholder.com/400x300?text=Imagen+No+Disponible"],
+                        nombre: c[0]?.replace(/"/g, '').trim(),
+                        precio: c[1]?.replace(/"/g, '').trim(),
+                        imagenes: imgs.length > 0 ? imgs : ["https://via.placeholder.com/400x300?text=Sin+Imagen"],
                         stock: isNaN(stockNum) ? 0 : stockNum
                     };
                 }).filter(p => p.nombre);
@@ -164,6 +158,7 @@
             productos.forEach((p, i) => {
                 const card = document.createElement('div');
                 card.className = 'tarjeta';
+                card.style.opacity = p.stock <= 0 ? "0.7" : "1";
                 
                 let puntosHTML = "";
                 if (p.imagenes.length > 1) {
@@ -174,7 +169,7 @@
 
                 card.innerHTML = `
                     <div class="img-contenedor">
-                        <img src="${p.imagenes[0]}" id="foto-${i}" onerror="falloImagen(this)">
+                        <img src="${p.imagenes[0]}" id="foto-${i}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x300?text=Cargando...'">
                         ${puntosHTML}
                     </div>
                     <div class="contenido">
@@ -192,26 +187,19 @@
             });
         }
 
-        // Función de respaldo si la imagen directa falla
-        function falloImagen(img) {
-            if (img.src.includes("lh3.googleusercontent")) {
-                // Si el primer método falla, intentamos el segundo método de Google Drive
-                const id = img.src.split("/d/")[1];
-                img.src = `https://drive.google.com/uc?export=view&id=${id}`;
-            } else {
-                img.src = 'https://via.placeholder.com/400x300?text=Error+de+Carga';
-            }
-        }
-
         function cambiarFoto(pIdx, imgIdx, el) {
-            document.getElementById(`foto-${pIdx}`).src = productos[pIdx].imagenes[imgIdx];
+            const imgElement = document.getElementById(`foto-${pIdx}`);
+            imgElement.style.opacity = "0.5";
+            imgElement.src = productos[pIdx].imagenes[imgIdx];
+            imgElement.onload = () => imgElement.style.opacity = "1";
+            
             el.parentElement.querySelectorAll('.punto').forEach(p => p.classList.remove('activo'));
             el.classList.add('activo');
         }
 
         function mover(dir) {
             const ancho = 300;
-            const limite = (productos.length - 1) * ancho;
+            const limite = Math.max(0, (productos.length - 1) * ancho);
             scrollPos += (dir * -ancho);
             if (scrollPos < -limite) scrollPos = -limite;
             if (scrollPos > 0) scrollPos = 0;
@@ -219,7 +207,7 @@
         }
 
         function seleccionar(nom) {
-            document.getElementById('txt-mensaje').value = "Hola Mis Usados, me interesa: " + nom;
+            document.getElementById('txt-mensaje').value = "Hola Mis Usados, me interesa el producto: " + nom;
             document.getElementById('pedido-seccion').scrollIntoView();
         }
 

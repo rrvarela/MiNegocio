@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Usados | Tienda Oficial</title>
+    <style>
+        :root {
+            --primario: #1a1a1a;
+            --acento: #007bff;
+            --exito: #28a745;
+            --alerta: #e67e22;
+            --error: #dc3545;
+            --fondo: #f4f7f6;
+        }
+
+        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--fondo); color: #333; scroll-behavior: smooth; }
+
+        header { 
+            background: var(--primario); 
+            color: white; 
+            padding: 50px 20px; 
+            text-align: center;
+            border-bottom: 5px solid var(--acento);
+        }
+
+        .vitrina-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            position: relative;
+            padding: 0 60px;
+        }
+        .visor { overflow: hidden; border-radius: 15px; min-height: 350px; }
+        .grid-productos { 
+            display: flex; 
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .tarjeta {
+            min-width: 280px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: 0.3s;
+        }
+        .tarjeta img { width: 100%; height: 200px; object-fit: cover; background: #eee; }
+        .contenido { padding: 20px; text-align: center; flex-grow: 1; }
+        .precio { font-size: 1.4rem; font-weight: bold; color: var(--acento); display: block; margin: 10px 0; }
+
+        .badge { font-size: 0.75rem; padding: 5px 12px; border-radius: 50px; font-weight: bold; display: inline-block; margin-bottom: 15px; }
+        .alto { background: #d4edda; color: #155724; }
+        .bajo { background: #fff3cd; color: #856404; }
+        .agotado { background: #f8d7da; color: #721c24; }
+
+        .btn-nav {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: white; border: 2px solid var(--primario);
+            width: 50px; height: 50px; border-radius: 50%; cursor: pointer;
+            font-size: 1.5rem; z-index: 10;
+        }
+        .btn-prev { left: 0; } .btn-next { right: 0; }
+
+        .seccion-contacto { background: white; padding: 60px 20px; }
+        .form-caja { max-width: 600px; margin: auto; }
+        form { display: flex; flex-direction: column; gap: 15px; }
+        input, textarea { padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+        .btn-pedido { background: var(--acento); color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; font-weight: bold; width: 100%; }
+        .btn-enviar { background: var(--primario); color: white; padding: 20px; border: none; border-radius: 8px; font-size: 1.2rem; cursor: pointer; }
+        
+        /* Mensajes de estado */
+        #mensaje-estado { text-align: center; padding: 50px; font-weight: bold; color: var(--primario); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Mis Usados</h1>
+        <p>Tienda oficial Catálogo en tiempo real</p>
+    </header>
+
+    <div class="vitrina-container">
+        <button class="btn-nav btn-prev" onclick="mover(-1)">&#10094;</button>
+        <button class="btn-nav btn-next" onclick="mover(1)">&#10095;</button>
+        
+        <div class="visor">
+            <div id="mensaje-estado">Cargando catálogo...</div>
+            <div class="grid-productos" id="catalogo"></div>
+        </div>
+    </div>
+
+    <section class="seccion-contacto" id="pedido-seccion">
+        <div class="form-caja">
+            <h2 style="text-align: center;">Hacer un Pedido</h2>
+            <form action="https://formspree.io/f/mvzbrqdq" method="POST">
+                <input type="text" name="cliente" placeholder="Tu nombre" required>
+                <input type="email" name="email" placeholder="Tu email" required>
+                <textarea id="txt-mensaje" name="mensaje" rows="4" placeholder="Selecciona un producto..." required></textarea>
+                <button type="submit" class="btn-enviar">Enviar Pedido</button>
+            </form>
+        </div>
+    </section>
+
+    <script>
+    // CORRECCIÓN: Se cerraron las comillas correctamente al final de la URL
+    const URL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3fcYWk6ira5SgkWGjS5-tVBvFAMPGUS9ggADgr-Wg8OzWRZGU47SehGfNIFc3EA/pub?output=csv";
+    
+    let productos = [];
+    let scrollPos = 0;
+    const contenedor = document.getElementById('catalogo');
+    const estado = document.getElementById('mensaje-estado');
+
+    async function cargarDatos() {
+        try {
+            // Agregamos un preventivo para la caché de Google
+            const response = await fetch(URL_CSV + "&cachebuster=" + new Date().getTime());
+            
+            if (!response.ok) throw new Error("Error al conectar con Google");
+            
+            const csvText = await response.text();
+            
+            // Procesamos filas (excluyendo la primera que son los títulos)
+            const filas = csvText.split(/\r?\n/).slice(1);
+            
+            productos = filas.map(f => {
+                // Separamos por comas de forma robusta
+                const c = f.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); 
+                return {
+                    nombre: c[0]?.replace(/"/g, '').trim(),
+                    precio: c[1]?.replace(/"/g, '').trim(),
+                    img: c[2]?.replace(/"/g, '').trim(),
+                    stock: parseInt(c[3]) || 0
+                };
+            }).filter(p => p.nombre && p.nombre.length > 1); // Filtramos filas vacías
+
+            if (productos.length === 0) {
+                estado.innerHTML = "No se encontraron productos en el catálogo de Google.";
+            } else {
+                estado.style.display = "none";
+                renderizar();
+            }
+        } catch (e) {
+            console.error("Error detallado:", e);
+            estado.innerHTML = "Error de conexión. Verifica que el Excel esté 'Publicado en la web' como CSV.";
+        }
+    }
+
+    function renderizar() {
+        contenedor.innerHTML = "";
+        productos.forEach(p => {
+            let bClass = "alto", bText = `Stock: ${p.stock}`;
+            if(p.stock <= 0) { bClass = "agotado"; bText = "Agotado"; }
+            else if(p.stock <= 3) { bClass = "bajo"; bText = "¡Últimas unidades!"; }
+
+            const tarjeta = document.createElement('div');
+            tarjeta.className = 'tarjeta';
+            if(p.stock <= 0) tarjeta.style.opacity = "0.6";
+
+            tarjeta.innerHTML = `
+                <img src="${p.img}" onerror="this.src='https://via.placeholder.com/300?text=Imagen+No+Disponible'">
+                <div class="contenido">
+                    <span class="badge ${bClass}">${bText}</span>
+                    <h3>${p.nombre}</h3>
+                    <span class="precio">${p.precio}</span>
+                    <button class="btn-pedido" ${p.stock <= 0 ? 'disabled' : ''} 
+                            onclick="seleccionar('${p.nombre}')">
+                        ${p.stock > 0 ? 'Seleccionar' : 'No disponible'}
+                    </button>
+                </div>
+            `;
+            contenedor.appendChild(tarjeta);
+        });
+    }
+
+    function mover(dir) {
+        const cardWidth = 300; 
+        const limit = (productos.length - 1) * cardWidth;
+        scrollPos += (dir * -cardWidth);
+        if(scrollPos < -limit) scrollPos = -limit;
+        if(scrollPos > 0) scrollPos = 0;
+        contenedor.style.transform = `translateX(${scrollPos}px)`;
+    }
+
+    function seleccionar(nom) {
+        document.getElementById('txt-mensaje').value = "Hola Mis Usados, me interesa: " + nom;
+        document.getElementById('pedido-seccion').scrollIntoView();
+    }
+
+    window.onload = cargarDatos;
+</script>
+</body>
+</html>

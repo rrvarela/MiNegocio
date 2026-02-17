@@ -12,7 +12,7 @@
             --blanco: #ffffff;
         }
 
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: var(--fondo); color: #333; scroll-behavior: smooth; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--fondo); color: #333; scroll-behavior: smooth; }
 
         header { 
             background: var(--primario); 
@@ -29,7 +29,7 @@
             padding: 0 60px;
         }
 
-        .visor { overflow: hidden; border-radius: 15px; min-height: 450px; }
+        .visor { overflow: hidden; border-radius: 15px; min-height: 480px; }
 
         .grid-productos { 
             display: flex; 
@@ -38,7 +38,6 @@
             padding: 20px 0;
         }
 
-        /* TARJETA */
         .tarjeta {
             min-width: 280px;
             background: var(--blanco);
@@ -50,71 +49,58 @@
             transition: 0.3s;
         }
 
-        /* CONTENEDOR DE IMAGEN Y PUNTOS */
         .img-contenedor {
             position: relative;
             width: 100%;
-            height: 220px;
+            height: 250px;
             background: #eee;
-            overflow: hidden;
         }
 
         .tarjeta img { 
             width: 100%; 
             height: 100%; 
             object-fit: cover; 
-            transition: opacity 0.3s;
         }
 
         .galeria-nav {
             position: absolute;
-            bottom: 12px;
+            bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 8px;
-            background: rgba(0,0,0,0.4);
-            padding: 6px 12px;
+            gap: 6px;
+            background: rgba(0,0,0,0.5);
+            padding: 5px 10px;
             border-radius: 20px;
-            z-index: 5;
         }
 
         .punto {
             width: 8px;
             height: 8px;
-            background: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.4);
             border-radius: 50%;
             cursor: pointer;
-            transition: 0.3s;
         }
 
-        .punto.activo { background: var(--blanco); transform: scale(1.3); }
+        .punto.activo { background: white; transform: scale(1.2); }
 
         .contenido { padding: 20px; text-align: center; flex-grow: 1; }
-        
         .precio { font-size: 1.4rem; font-weight: bold; color: var(--acento); display: block; margin: 10px 0; }
-
         .badge { font-size: 0.75rem; padding: 5px 12px; border-radius: 50px; font-weight: bold; display: inline-block; margin-bottom: 10px; }
-        .alto { background: #d4edda; color: #155724; }
-        .agotado { background: #f8d7da; color: #721c24; }
+        .disponible { background: #d4edda; color: #155724; }
+        .agotado { background: #f8d7da; color: #721c24; opacity: 0.8; }
 
-        /* NAVEGACIÓN CARRUSEL */
         .btn-nav {
             position: absolute; top: 50%; transform: translateY(-50%);
-            background: var(--blanco); border: 2px solid var(--primario);
+            background: white; border: 2px solid var(--primario);
             width: 45px; height: 45px; border-radius: 50%; cursor: pointer;
-            font-size: 1.2rem; z-index: 10; font-weight: bold;
+            font-size: 1.2rem; z-index: 10;
         }
         .btn-prev { left: 5px; } .btn-next { right: 5px; }
 
-        /* CONTACTO */
-        .seccion-contacto { background: var(--blanco); padding: 60px 20px; text-align: center; }
-        .form-caja { max-width: 500px; margin: auto; }
-        form { display: flex; flex-direction: column; gap: 15px; }
-        input, textarea { padding: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
-        .btn-enviar { background: var(--primario); color: white; padding: 18px; border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem; }
-
-        #mensaje-estado { text-align: center; padding: 50px; font-weight: bold; }
+        .seccion-contacto { background: white; padding: 50px 20px; }
+        .btn-seleccionar { background: var(--acento); color: white; border: none; padding: 10px; border-radius: 5px; width: 100%; cursor: pointer; font-weight: bold; }
+        .btn-seleccionar:disabled { background: #ccc; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -127,39 +113,33 @@
     <div class="vitrina-container">
         <button class="btn-nav btn-prev" onclick="mover(-1)">❮</button>
         <button class="btn-nav btn-next" onclick="mover(1)">❯</button>
-        
         <div class="visor">
-            <div id="mensaje-estado">Cargando catálogo...</div>
+            <div id="mensaje-estado" style="text-align: center; padding: 50px;">Cargando productos...</div>
             <div class="grid-productos" id="catalogo"></div>
         </div>
     </div>
 
     <section class="seccion-contacto" id="pedido-seccion">
-        <div class="form-caja">
-            <h2>Realizar Pedido</h2>
-            <form action="https://formspree.io/f/rrvarela@outlook.com" method="POST">
+        <div style="max-width: 500px; margin: auto;">
+            <h2 style="text-align: center;">Tu Pedido</h2>
+            <form action="https://formspree.io/f/rrvarela@outlook.com" method="POST" style="display: flex; flex-direction: column; gap: 15px;">
                 <input type="text" name="nombre" placeholder="Tu nombre" required>
-                <textarea id="txt-mensaje" name="mensaje" rows="4" placeholder="Selecciona un producto del catálogo..." required></textarea>
-                <button type="submit" class="btn-enviar">Enviar a WhatsApp / Mail</button>
+                <textarea id="txt-mensaje" name="mensaje" rows="4" placeholder="Selecciona un producto..." required></textarea>
+                <button type="submit" style="background: var(--primario); color: white; padding: 15px; border: none; border-radius: 8px; cursor: pointer;">Enviar Consulta</button>
             </form>
         </div>
     </section>
 
     <script>
         const URL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3fcYWk6ira5SgkWGjS5-tVBvFAMPGUS9ggADgr-Wg8OzWRZGU47SehGfNIFc3EA/pub?output=csv";
-        
         let productos = [];
         let scrollPos = 0;
 
         function corregirImagen(url) {
-            if (!url || url.trim() === "" || url.includes("undefined")) return null;
-            if (url.includes("picsum.photos")) return url;
+            if (!url || url.trim() === "" || url.length < 10) return null;
             let id = "";
-            if (url.includes("id=")) {
-                id = url.split("id=")[1].split("&")[0];
-            } else if (url.includes("/d/")) {
-                id = url.split("/d/")[1].split("/")[0];
-            }
+            if (url.includes("id=")) id = url.split("id=")[1].split("&")[0];
+            else if (url.includes("/d/")) id = url.split("/d/")[1].split("/")[0];
             return id ? `https://drive.google.com/uc?export=view&id=${id}` : url;
         }
 
@@ -167,23 +147,29 @@
             try {
                 const res = await fetch(URL_CSV + "&t=" + new Date().getTime());
                 const csv = await res.text();
-                const filas = csv.split(/\r?\n/).slice(1);
+                const filas = csv.split(/\r?\n/).filter(line => line.trim() !== "");
                 
-                productos = filas.map(f => {
+                // Saltamos la cabecera
+                productos = filas.slice(1).map(f => {
                     const c = f.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    
+                    // IMPORTANTE: Según tu último archivo:
+                    // c[0]=Nombre, c[1]=Precio, c[2]=img1, c[3]=img2, c[4]=img3, c[5]=Stock
                     const imgs = [corregirImagen(c[2]), corregirImagen(c[3]), corregirImagen(c[4])].filter(i => i !== null);
+                    const stockNum = parseInt(c[5]);
+
                     return {
                         nombre: c[0]?.replace(/"/g, '').trim(),
                         precio: c[1]?.replace(/"/g, '').trim(),
-                        imagenes: imgs,
-                        stock: parseInt(c[5]) || 0
+                        imagenes: imgs.length > 0 ? imgs : ["https://via.placeholder.com/300?text=Sin+Imagen"],
+                        stock: isNaN(stockNum) ? 0 : stockNum
                     };
                 }).filter(p => p.nombre);
 
                 document.getElementById('mensaje-estado').style.display = "none";
                 renderizar();
             } catch (e) {
-                document.getElementById('mensaje-estado').innerHTML = "Error al cargar el catálogo.";
+                document.getElementById('mensaje-estado').innerHTML = "Error al cargar datos.";
             }
         }
 
@@ -191,6 +177,9 @@
             const contenedor = document.getElementById('catalogo');
             contenedor.innerHTML = "";
             productos.forEach((p, i) => {
+                const card = document.createElement('div');
+                card.className = 'tarjeta';
+                
                 let puntosHTML = "";
                 if (p.imagenes.length > 1) {
                     puntosHTML = `<div class="galeria-nav">` + 
@@ -198,24 +187,19 @@
                     `</div>`;
                 }
 
-                const card = document.createElement('div');
-                card.className = 'tarjeta';
-                card.style.opacity = p.stock <= 0 ? "0.6" : "1";
-
                 card.innerHTML = `
                     <div class="img-contenedor">
                         <img src="${p.imagenes[0]}" id="foto-${i}" onerror="this.src='https://via.placeholder.com/300?text=Error+de+Imagen'">
                         ${puntosHTML}
                     </div>
                     <div class="contenido">
-                        <span class="badge ${p.stock > 0 ? 'alto' : 'agotado'}">
-                            ${p.stock > 0 ? 'Disponible: ' + p.stock : 'Agotado'}
+                        <span class="badge ${p.stock > 0 ? 'disponible' : 'agotado'}">
+                            ${p.stock > 0 ? 'Stock: ' + p.stock : 'Agotado'}
                         </span>
                         <h3>${p.nombre}</h3>
-                        <span class="precio">${p.precio}</span>
-                        <button class="btn-enviar" style="padding:10px; font-size:0.9rem;" 
-                                onclick="seleccionar('${p.nombre}')" ${p.stock <= 0 ? 'disabled' : ''}>
-                            Seleccionar
+                        <span class="precio">$${p.precio}</span>
+                        <button class="btn-seleccionar" onclick="seleccionar('${p.nombre}')" ${p.stock <= 0 ? 'disabled' : ''}>
+                            ${p.stock > 0 ? 'Seleccionar' : 'Sin Stock'}
                         </button>
                     </div>
                 `;
@@ -225,8 +209,7 @@
 
         function cambiarFoto(pIdx, imgIdx, el) {
             document.getElementById(`foto-${pIdx}`).src = productos[pIdx].imagenes[imgIdx];
-            const pnts = el.parentElement.querySelectorAll('.punto');
-            pnts.forEach(p => p.classList.remove('activo'));
+            el.parentElement.querySelectorAll('.punto').forEach(p => p.classList.remove('activo'));
             el.classList.add('activo');
         }
 
@@ -240,7 +223,7 @@
         }
 
         function seleccionar(nom) {
-            document.getElementById('txt-mensaje').value = "Hola Mis Usados, me interesa el producto: " + nom;
+            document.getElementById('txt-mensaje').value = "Hola Mis Usados, me interesa: " + nom;
             document.getElementById('pedido-seccion').scrollIntoView();
         }
 

@@ -106,7 +106,6 @@
     </section>
 
     <script>
-    // CORRECCIÓN: Se cerraron las comillas correctamente al final de la URL
     const URL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3fcYWk6ira5SgkWGjS5-tVBvFAMPGUS9ggADgr-Wg8OzWRZGU47SehGfNIFc3EA/pub?output=csv";
     
     let productos = [];
@@ -160,17 +159,22 @@
             tarjeta.className = 'tarjeta';
             if(p.stock <= 0) tarjeta.style.opacity = "0.6";
 
-            tarjeta.innerHTML = `
-                <img src="${p.img}" onerror="this.src='https://via.placeholder.com/300?text=Imagen+No+Disponible'">
-                <div class="contenido">
-                    <span class="badge ${bClass}">${bText}</span>
-                    <h3>${p.nombre}</h3>
-                    <span class="precio">${p.precio}</span>
-                    <button class="btn-pedido" ${p.stock <= 0 ? 'disabled' : ''} 
-                            onclick="seleccionar('${p.nombre}')">
-                        ${p.stock > 0 ? 'Seleccionar' : 'No disponible'}
-                    </button>
-                </div>
+            // Busca esta parte en tu función renderizar() y actualízala:
+tarjeta.innerHTML = `
+    <div style="width: 100%; height: 200px; background: #ddd; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+        <img src="${p.img}" 
+             style="width: 100%; height: 100%; object-fit: cover;"
+             onerror="this.onerror=null; this.src='https://via.placeholder.com/300?text=Error+de+Imagen';">
+    </div>
+    <div class="contenido">
+        <span class="badge ${bClass}">${bText}</span>
+        <h3>${p.nombre}</h3>
+        <span class="precio">${p.precio}</span>
+        <button class="btn-pedido" ${p.stock <= 0 ? 'disabled' : ''} 
+                onclick="seleccionar('${p.nombre}')">
+            ${p.stock > 0 ? 'Seleccionar' : 'No disponible'}
+        </button>
+    </div>
             `;
             contenedor.appendChild(tarjeta);
         });

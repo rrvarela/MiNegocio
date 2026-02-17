@@ -15,73 +15,39 @@
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--fondo); color: #333; scroll-behavior: smooth; }
 
         header { 
-            background: var(--primario); 
-            color: white; 
-            padding: 40px 20px; 
-            text-align: center;
+            background: var(--primario); color: white; padding: 40px 20px; text-align: center;
             border-bottom: 5px solid var(--acento);
         }
 
         .vitrina-container {
-            max-width: 1200px;
-            margin: 40px auto;
-            position: relative;
-            padding: 0 60px;
+            max-width: 1200px; margin: 40px auto; position: relative; padding: 0 60px;
         }
 
         .visor { overflow: hidden; border-radius: 15px; min-height: 480px; }
 
         .grid-productos { 
-            display: flex; 
-            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-            gap: 20px;
-            padding: 20px 0;
+            display: flex; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            gap: 20px; padding: 20px 0;
         }
 
         .tarjeta {
-            min-width: 280px;
-            background: var(--blanco);
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            transition: 0.3s;
+            min-width: 280px; background: var(--blanco); border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden;
+            display: flex; flex-direction: column; transition: 0.3s;
         }
 
         .img-contenedor {
-            position: relative;
-            width: 100%;
-            height: 250px;
-            background: #eee;
+            position: relative; width: 100%; height: 250px; background: #eee;
         }
 
-        .tarjeta img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-        }
+        .tarjeta img { width: 100%; height: 100%; object-fit: cover; }
 
         .galeria-nav {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 6px;
-            background: rgba(0,0,0,0.5);
-            padding: 5px 10px;
-            border-radius: 20px;
+            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 6px; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 20px;
         }
 
-        .punto {
-            width: 8px;
-            height: 8px;
-            background: rgba(255,255,255,0.4);
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
+        .punto { width: 8px; height: 8px; background: rgba(255,255,255,0.4); border-radius: 50%; cursor: pointer; }
         .punto.activo { background: white; transform: scale(1.2); }
 
         .contenido { padding: 20px; text-align: center; flex-grow: 1; }
@@ -99,7 +65,10 @@
         .btn-prev { left: 5px; } .btn-next { right: 5px; }
 
         .seccion-contacto { background: white; padding: 50px 20px; }
-        .btn-seleccionar { background: var(--acento); color: white; border: none; padding: 10px; border-radius: 5px; width: 100%; cursor: pointer; font-weight: bold; }
+        .btn-seleccionar { 
+            background: var(--acento); color: white; border: none; padding: 10px; 
+            border-radius: 5px; width: 100%; cursor: pointer; font-weight: bold; 
+        }
         .btn-seleccionar:disabled { background: #ccc; cursor: not-allowed; }
     </style>
 </head>
@@ -135,12 +104,22 @@
         let productos = [];
         let scrollPos = 0;
 
+        // FUNCIÓN MEJORADA: Limpia cualquier enlace de Google Drive para hacerlo imagen directa
         function corregirImagen(url) {
-            if (!url || url.trim() === "" || url.length < 10) return null;
+            if (!url || url.trim().length < 10) return null;
             let id = "";
-            if (url.includes("id=")) id = url.split("id=")[1].split("&")[0];
-            else if (url.includes("/d/")) id = url.split("/d/")[1].split("/")[0];
-            return id ? `https://drive.google.com/uc?export=view&id=${id}` : url;
+            const cleanUrl = url.trim();
+            
+            if (cleanUrl.includes("id=")) {
+                id = cleanUrl.split("id=")[1].split("&")[0];
+            } else if (cleanUrl.includes("/d/")) {
+                id = cleanUrl.split("/d/")[1].split("/")[0];
+            } else if (cleanUrl.includes("open?")) {
+                id = cleanUrl.split("id=")[1].split("&")[0];
+            }
+
+            // Usamos el servidor de contenido de Google que es el más estable para imágenes
+            return id ? `https://lh3.googleusercontent.com/u/0/d/${id}` : cleanUrl;
         }
 
         async function cargarDatos() {
@@ -149,19 +128,25 @@
                 const csv = await res.text();
                 const filas = csv.split(/\r?\n/).filter(line => line.trim() !== "");
                 
-                // Saltamos la cabecera
                 productos = filas.slice(1).map(f => {
                     const c = f.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     
-                    // IMPORTANTE: Según tu último archivo:
-                    // c[0]=Nombre, c[1]=Precio, c[2]=img1, c[3]=img2, c[4]=img3, c[5]=Stock
-                    const imgs = [corregirImagen(c[2]), corregirImagen(c[3]), corregirImagen(c[4])].filter(i => i !== null);
-                    const stockNum = parseInt(c[5]);
+                    // Aseguramos que limpiamos comillas y espacios de los enlaces
+                    const cleanLink = (str) => str ? str.replace(/"/g, '').trim() : null;
+
+                    const imgs = [
+                        corregirImagen(cleanLink(c[2])), 
+                        corregirImagen(cleanLink(c[3])), 
+                        corregirImagen(cleanLink(c[4]))
+                    ].filter(i => i !== null);
+
+                    const stockValue = cleanLink(c[5]);
+                    const stockNum = parseInt(stockValue);
 
                     return {
-                        nombre: c[0]?.replace(/"/g, '').trim(),
-                        precio: c[1]?.replace(/"/g, '').trim(),
-                        imagenes: imgs.length > 0 ? imgs : ["https://via.placeholder.com/300?text=Sin+Imagen"],
+                        nombre: cleanLink(c[0]),
+                        precio: cleanLink(c[1]),
+                        imagenes: imgs.length > 0 ? imgs : ["https://via.placeholder.com/400x300?text=Imagen+No+Disponible"],
                         stock: isNaN(stockNum) ? 0 : stockNum
                     };
                 }).filter(p => p.nombre);
@@ -169,7 +154,7 @@
                 document.getElementById('mensaje-estado').style.display = "none";
                 renderizar();
             } catch (e) {
-                document.getElementById('mensaje-estado').innerHTML = "Error al cargar datos.";
+                document.getElementById('mensaje-estado').innerHTML = "Error al conectar con el catálogo.";
             }
         }
 
@@ -189,7 +174,7 @@
 
                 card.innerHTML = `
                     <div class="img-contenedor">
-                        <img src="${p.imagenes[0]}" id="foto-${i}" onerror="this.src='https://via.placeholder.com/300?text=Error+de+Imagen'">
+                        <img src="${p.imagenes[0]}" id="foto-${i}" onerror="falloImagen(this)">
                         ${puntosHTML}
                     </div>
                     <div class="contenido">
@@ -205,6 +190,17 @@
                 `;
                 contenedor.appendChild(card);
             });
+        }
+
+        // Función de respaldo si la imagen directa falla
+        function falloImagen(img) {
+            if (img.src.includes("lh3.googleusercontent")) {
+                // Si el primer método falla, intentamos el segundo método de Google Drive
+                const id = img.src.split("/d/")[1];
+                img.src = `https://drive.google.com/uc?export=view&id=${id}`;
+            } else {
+                img.src = 'https://via.placeholder.com/400x300?text=Error+de+Carga';
+            }
         }
 
         function cambiarFoto(pIdx, imgIdx, el) {

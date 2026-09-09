@@ -265,13 +265,13 @@
             btn.disabled = true;
 
             // Validación de seguridad previa al envío
-            if (PUBLIC_KEY === "6vG6g-_5OuHo7EQwG" || SERVICE_ID === "service_vgl5ahr") {
-                respuesta.style.color = "var(--error)";
-                respuesta.innerText = "Error: Por favor reemplaza las claves de EmailJS en las constantes del código.";
-                btn.innerText = "Enviar Consulta";
-                btn.disabled = false;
-                return;
-            }
+           // if (PUBLIC_KEY === "6vG6g-_5OuHo7EQwG" || SERVICE_ID === "service_vgl5ahr") {
+             //   respuesta.style.color = "var(--error)";
+            //  respuesta.innerText = "Error: Por favor reemplaza las claves de EmailJS en las constantes del código.";
+           //     btn.innerText = "Enviar Consulta";
+             //   btn.disabled = false;
+               // return;
+           // }
 
             // Envío con paso explícito de la clave pública como 4º argumento
             emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, '#form-pedido', PUBLIC_KEY)

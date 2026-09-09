@@ -117,21 +117,71 @@
             <p id="mensaje-respuesta" style="text-align: center; font-weight: bold; margin-top: 15px;"></p>
         </div>
     </section>
+<!-- Importación de la versión más estable de EmailJS browser SDK -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
-    <script>
-        // ==========================================
-        // CONFIGURACIÓN DE EMAILJS (TUS CLAVES)
-        // ==========================================
+<script type="text/javascript">
+    // =========================================================================
+    // CONFIGURACIÓN DE CREDENCIALES
+    // Reemplaza los textos dentro de las comillas con tus datos de EmailJS
+    // =========================================================================
         const PUBLIC_KEY = "6vG6g-_5OuHo7EQwG";
         const SERVICE_ID = "service_vgl5ahr";
         const TEMPLATE_ID = "template_zwyzlcu";
+    
+    // Inicialización explícita de EmailJS
+    (function() {
+        if (PUBLIC_KEY !== "6vG6g-_5OuHo7EQwG" && PUBLIC_KEY.trim() !== "") {
+            emailjs.init(PUBLIC_KEY);
+            console.log("EmailJS inicializado correctamente.");
+        } else {
+            console.warn("Atención: Aún no has configurado tu Public Key real.");
+        }
+    })();
 
-        // Inicializar EmailJS con tu clave pública
-        (function() {
-            if (PUBLIC_KEY !== "6vG6g-_5OuHo7EQwG") {
-                emailjs.init(PUBLIC_KEY);
-            }
-        })();
+    // Función que procesa y envía el formulario de contacto
+    function enviarCorreo(event) {
+        // Prevenir la recarga automática de la página
+        event.preventDefault();
+
+        const btn = document.getElementById('btn-enviar');
+        const respuesta = document.getElementById('mensaje-respuesta');
+
+        // Modificar estado del botón durante la petición
+        btn.innerText = "Enviando consulta...";
+        btn.disabled = true;
+
+        // Validación preventiva de credenciales
+        if (PUBLIC_KEY === "TU_PUBLIC_KEY_REAL" || SERVICE_ID === "TU_SERVICE_ID_REAL") {
+            respuesta.style.color = "var(--error)";
+            respuesta.innerText = "Error: Debes reemplazar las credenciales de EmailJS en el código HTML.";
+            btn.innerText = "Enviar Consulta";
+            btn.disabled = false;
+            return;
+        }
+
+        // Envío explícito pasando la PUBLIC_KEY como 4to parámetro para evitar rechazos de API
+        emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, '#form-pedido', PUBLIC_KEY)
+            .then((result) => {
+                console.log("Respuesta de EmailJS:", result.text);
+                btn.innerText = "Enviar Consulta";
+                btn.disabled = false;
+                respuesta.style.color = "var(--exito)";
+                respuesta.innerText = "¡Consulta enviada con éxito! Revisa tu bandeja de entrada.";
+                document.getElementById('form-pedido').reset();
+            })
+            .catch((error) => {
+                console.error("Error al enviar mediante EmailJS:", error);
+                btn.innerText = "Enviar Consulta";
+                btn.disabled = false;
+                respuesta.style.color = "var(--error)";
+                
+                // Muestra el detalle exacto del error devuelto por la API
+                const detalleError = error.text || error.message || "Error de autenticación";
+                respuesta.innerText = "Ocurrió un error: " + detalleError;
+            });
+    }
+</script>
 
         // ==========================================
         // CÓDIGO DE LECTURA DEL CATÁLOGO (GOOGLE SHEETS) 

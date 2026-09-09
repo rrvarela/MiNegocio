@@ -3,193 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis Usados | Tienda Oficial</title>
-    <!-- Librería oficial de EmailJS -->
+    <title>Mis Usados | Catálogo Digital</title>
+    
+    <!-- Librería oficial de EmailJS (SDK Browser v3) -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
     <style>
         :root {
             --primario: #1a1a1a;
             --acento: #007bff;
             --exito: #28a745;
-            --alerta: #e67e22;
             --error: #dc3545;
             --fondo: #f4f7f6;
             --blanco: #ffffff;
         }
 
-        body { font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; background: var(--fondo); color: #333; scroll-behavior: smooth; }
+        body { 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; 
+            background: var(--fondo); 
+            color: #333; 
+        }
 
         header { 
-            background: var(--primario); color: white; padding: 40px 20px; text-align: center;
-            border-bottom: 5px solid var(--acento);
+            background: var(--primario); 
+            color: white; 
+            padding: 30px 20px; 
+            text-align: center; 
+            border-bottom: 4px solid var(--acento); 
         }
 
-        .vitrina-container {
-            max-width: 1200px; margin: 40px auto; position: relative; padding: 0 60px;
+        .contenedor { 
+            max-width: 1100px; 
+            margin: 30px auto; 
+            padding: 0 20px; 
         }
-
-        .visor { overflow: hidden; border-radius: 15px; min-height: 480px; }
 
         .grid-productos { 
-            display: flex; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-            gap: 20px; padding: 20px 0;
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
+            gap: 20px; 
         }
 
-        .tarjeta {
-            min-width: 280px; background: var(--blanco); border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden;
-            display: flex; flex-direction: column; transition: 0.3s;
+        .tarjeta { 
+            background: var(--blanco); 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
         }
 
-        .img-contenedor {
-            position: relative; width: 100%; height: 250px; background: #eee;
+        .tarjeta img { 
+            width: 100%; 
+            height: 220px; 
+            object-fit: cover; 
+            background: #eee;
         }
 
-        .tarjeta img { width: 100%; height: 100%; object-fit: cover; }
-
-        .galeria-nav {
-            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 6px; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 20px;
+        .contenido { 
+            padding: 15px; 
+            text-align: center; 
+            flex-grow: 1; 
         }
 
-        .punto { width: 10px; height: 10px; background: rgba(255,255,255,0.4); border-radius: 50%; cursor: pointer; }
-        .punto.activo { background: white; transform: scale(1.2); }
+        .precio { 
+            font-size: 1.3rem; 
+            font-weight: bold; 
+            color: var(--acento); 
+            margin: 10px 0; 
+        }
 
-        .contenido { padding: 20px; text-align: center; flex-grow: 1; }
-        .precio { font-size: 1.4rem; font-weight: bold; color: var(--acento); display: block; margin: 10px 0; }
-        .badge { font-size: 0.75rem; padding: 5px 12px; border-radius: 50px; font-weight: bold; display: inline-block; margin-bottom: 10px; }
+        .badge { 
+            font-size: 0.8rem; 
+            padding: 4px 10px; 
+            border-radius: 20px; 
+            font-weight: bold; 
+        }
+
         .disponible { background: #d4edda; color: #155724; }
         .agotado { background: #f8d7da; color: #721c24; }
 
-        .btn-nav {
-            position: absolute; top: 50%; transform: translateY(-50%);
-            background: white; border: 2px solid var(--primario);
-            width: 45px; height: 45px; border-radius: 50%; cursor: pointer;
-            font-size: 1.2rem; z-index: 10;
-        }
-        .btn-prev { left: 5px; } .btn-next { right: 5px; }
-
-        .seccion-contacto { background: white; padding: 50px 20px; }
         .btn-seleccionar { 
-            background: var(--acento); color: white; border: none; padding: 12px; 
-            border-radius: 5px; width: 100%; cursor: pointer; font-weight: bold; 
+            background: var(--acento); 
+            color: white; 
+            border: none; 
+            padding: 10px; 
+            border-radius: 5px; 
+            width: 100%; 
+            cursor: pointer; 
+            font-weight: bold; 
+            margin-top: 10px;
         }
-        .btn-seleccionar:disabled { background: #ccc; cursor: not-allowed; }
+
+        .seccion-contacto { 
+            background: white; 
+            padding: 40px 20px; 
+            margin-top: 40px; 
+            border-top: 1px solid #ddd;
+        }
+
+        form { 
+            max-width: 500px; 
+            margin: 0 auto; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+        }
+
+        input, textarea { 
+            padding: 12px; 
+            border: 1px solid #ccc; 
+            border-radius: 5px; 
+            font-size: 1rem;
+        }
+
+        button[type="submit"] { 
+            background: var(--primario); 
+            color: white; 
+            padding: 14px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 1rem; 
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
     <header>
         <h1>Mis Usados</h1>
-        <p>Catálogo Digital Oficial</p>
+        <p>Catálogo de Productos Disponibles</p>
     </header>
 
-    <div class="vitrina-container">
-        <button class="btn-nav btn-prev" onclick="mover(-1)">❮</button>
-        <button class="btn-nav btn-next" onclick="mover(1)">❯</button>
-        <div class="visor">
-            <div id="mensaje-estado" style="text-align: center; padding: 50px;">Cargando productos...</div>
-            <div class="grid-productos" id="catalogo"></div>
+    <div class="contenedor">
+        <div id="mensaje-estado" style="text-align: center; font-size: 1.2rem; margin: 40px 0;">
+            Cargando productos desde la base de datos...
         </div>
+        <div class="grid-productos" id="catalogo"></div>
     </div>
 
-    <!-- SECCIÓN DE CONTACTO VÍA EMAILJS -->
-    <section class="seccion-contacto" id="pedido-seccion">
+    <!-- Sección de Formulario de Consulta -->
+    <section class="seccion-contacto" id="contacto">
         <div style="max-width: 500px; margin: auto;">
-            <h2 style="text-align: center;">Hacer Consulta por Correo</h2>
+            <h2 style="text-align: center;">Consulta por Correo</h2>
             
-            <form id="form-pedido" onsubmit="enviarCorreo(event)" style="display: flex; flex-direction: column; gap: 15px;">
-                <!-- Campo para el nombre del cliente -->
-                <input type="text" id="cliente-nombre" name="nombre_cliente" placeholder="Tu nombre completo" required style="padding: 12px; border: 1px solid #ccc; border-radius: 5px;">
+            <form id="form-pedido" onsubmit="enviarCorreo(event)">
+                <input type="text" name="nombre_cliente" placeholder="Tu nombre completo" required>
+                <input type="email" name="email_cliente" placeholder="Tu correo electrónico" required>
+                <textarea id="txt-mensaje" name="detalle_pedido" rows="4" placeholder="Escribe tu consulta o selecciona un producto..." required></textarea>
                 
-                <!-- Campo para el correo del cliente -->
-                <input type="email" id="cliente-email" name="email_cliente" placeholder="Tu correo electrónico (ej: cliente@gmail.com)" required style="padding: 12px; border: 1px solid #ccc; border-radius: 5px;">
-                
-                <!-- Detalle del producto e interés -->
-                <textarea id="txt-mensaje" name="detalle_pedido" rows="4" placeholder="Selecciona un producto del catálogo..." required style="padding: 12px; border: 1px solid #ccc; border-radius: 5px;"></textarea>
-                
-                <!-- Botón de envío -->
-                <button type="submit" id="btn-enviar" style="background: var(--primario); color: white; padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem;">
-                    Enviar Pedido a mi Correo
-                </button>
+                <button type="submit" id="btn-enviar">Enviar Consulta</button>
             </form>
             
             <p id="mensaje-respuesta" style="text-align: center; font-weight: bold; margin-top: 15px;"></p>
         </div>
     </section>
-<!-- Importación de la versión más estable de EmailJS browser SDK -->
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
-<script type="text/javascript">
-    // =========================================================================
-    // CONFIGURACIÓN DE CREDENCIALES
-    // Reemplaza los textos dentro de las comillas con tus datos de EmailJS
-    // =========================================================================
+    <script>
+        // =========================================================================
+        // CONFIGURACIÓN DE CREDENCIALES DE EMAILJS
+        // Sustituye las cadenas entre comillas por tus datos exactos de EmailJS
+        // =========================================================================
         const PUBLIC_KEY = "6vG6g-_5OuHo7EQwG";
         const SERVICE_ID = "service_vgl5ahr";
         const TEMPLATE_ID = "template_zwyzlcu";
-    
-    // Inicialización explícita de EmailJS
-    (function() {
-        if (PUBLIC_KEY !== "6vG6g-_5OuHo7EQwG" && PUBLIC_KEY.trim() !== "") {
-            emailjs.init(PUBLIC_KEY);
-            console.log("EmailJS inicializado correctamente.");
-        } else {
-            console.warn("Atención: Aún no has configurado tu Public Key real.");
-        }
-    })();
 
-    // Función que procesa y envía el formulario de contacto
-    function enviarCorreo(event) {
-        // Prevenir la recarga automática de la página
-        event.preventDefault();
+        // Inicialización del SDK de EmailJS
+        (function() {
+            if (PUBLIC_KEY !== "6vG6g-_5OuHo7EQwG" && PUBLIC_KEY.trim() !== "") {
+                emailjs.init(PUBLIC_KEY);
+                console.log("EmailJS inicializado correctamente.");
+            } else {
+                console.warn("Advertencia: Configura tu Public Key real en las constantes JavaScript.");
+            }
+        })();
 
-        const btn = document.getElementById('btn-enviar');
-        const respuesta = document.getElementById('mensaje-respuesta');
-
-        // Modificar estado del botón durante la petición
-        btn.innerText = "Enviando consulta...";
-        btn.disabled = true;
-
-        // Validación preventiva de credenciales
-        if (PUBLIC_KEY === "TU_PUBLIC_KEY_REAL" || SERVICE_ID === "TU_SERVICE_ID_REAL") {
-            respuesta.style.color = "var(--error)";
-            respuesta.innerText = "Error: Debes reemplazar las credenciales de EmailJS en el código HTML.";
-            btn.innerText = "Enviar Consulta";
-            btn.disabled = false;
-            return;
-        }
-
-        // Envío explícito pasando la PUBLIC_KEY como 4to parámetro para evitar rechazos de API
-        emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, '#form-pedido', PUBLIC_KEY)
-            .then((result) => {
-                console.log("Respuesta de EmailJS:", result.text);
-                btn.innerText = "Enviar Consulta";
-                btn.disabled = false;
-                respuesta.style.color = "var(--exito)";
-                respuesta.innerText = "¡Consulta enviada con éxito! Revisa tu bandeja de entrada.";
-                document.getElementById('form-pedido').reset();
-            })
-            .catch((error) => {
-                console.error("Error al enviar mediante EmailJS:", error);
-                btn.innerText = "Enviar Consulta";
-                btn.disabled = false;
-                respuesta.style.color = "var(--error)";
-                
-                // Muestra el detalle exacto del error devuelto por la API
-                const detalleError = error.text || error.message || "Error de autenticación";
-                respuesta.innerText = "Ocurrió un error: " + detalleError;
-            });
-    }
-</script>
-
-        // ==========================================
-        // CÓDIGO DE LECTURA DEL CATÁLOGO (GOOGLE SHEETS) 
-        // ==========================================
+        // Enlace CSV publicado de Google Sheets
         const URL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3fcYWk6ira5SgkWGjS5-tVBvFAMPGUS9ggADgr-Wg8OzWRZGU47SehGfNIFc3EA/pub?output=csv";
-        let productos = [];
-        let scrollPos = 0;
 
+        // Función para transformar enlaces compartidos de Google Drive en enlaces de imagen directa
         function convertirLinkDrive(url) {
             if (!url || url.trim().length < 10) return null;
             const cleanUrl = url.trim().replace(/"/g, '');
@@ -204,131 +198,101 @@
             return id ? `https://lh3.googleusercontent.com/d/${id}` : cleanUrl;
         }
 
+        // Cargar productos desde Google Sheets
         async function cargarDatos() {
             try {
                 const res = await fetch(URL_CSV + "&t=" + new Date().getTime());
                 const csv = await res.text();
                 const filas = csv.split(/\r?\n/).filter(line => line.trim() !== "");
                 
-                productos = filas.slice(1).map(f => {
+                const productos = filas.slice(1).map(f => {
                     const c = f.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    
-                    const img1 = convertirLinkDrive(c[2]);
-                    const img2 = convertirLinkDrive(c[3]);
-                    const img3 = convertirLinkDrive(c[4]);
-                    const imgs = [img1, img2, img3].filter(i => i !== null);
-
-                    const stockValue = c[5] ? c[5].trim().replace(/"/g, '') : "0";
-                    const stockNum = parseInt(stockValue);
+                    const imgDirecta = convertirLinkDrive(c[2]);
+                    const stockNum = parseInt(c[5] ? c[5].replace(/"/g, '') : "0");
 
                     return {
                         nombre: c[0]?.replace(/"/g, '').trim(),
                         precio: c[1]?.replace(/"/g, '').trim(),
-                        imagenes: imgs.length > 0 ? imgs : ["https://via.placeholder.com/400x300?text=Sin+Imagen"],
+                        imagen: imgDirecta || "https://via.placeholder.com/300x200?text=Sin+Imagen",
                         stock: isNaN(stockNum) ? 0 : stockNum
                     };
                 }).filter(p => p.nombre);
 
                 document.getElementById('mensaje-estado').style.display = "none";
-                renderizar();
+                renderizar(productos);
             } catch (e) {
-                document.getElementById('mensaje-estado').innerHTML = "Error al conectar con el catálogo.";
+                document.getElementById('mensaje-estado').innerText = "Error al cargar la lista de productos.";
             }
         }
 
-        function renderizar() {
+        // Mostrar productos en pantalla
+        function renderizar(productos) {
             const contenedor = document.getElementById('catalogo');
             contenedor.innerHTML = "";
-            productos.forEach((p, i) => {
+
+            productos.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'tarjeta';
-                card.style.opacity = p.stock <= 0 ? "0.7" : "1";
-                
-                let puntosHTML = "";
-                if (p.imagenes.length > 1) {
-                    puntosHTML = `<div class="galeria-nav">` + 
-                        p.imagenes.map((_, idx) => `<span class="punto ${idx===0?'activo':''}" onclick="cambiarFoto(${i}, ${idx}, this)"></span>`).join('') + 
-                    `</div>`;
-                }
-
                 card.innerHTML = `
-                    <div class="img-contenedor">
-                        <img src="${p.imagenes[0]}" id="foto-${i}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x300?text=Cargando...'">
-                        ${puntosHTML}
-                    </div>
+                    <img src="${p.imagen}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x200?text=Imagen+No+Disponible'">
                     <div class="contenido">
                         <span class="badge ${p.stock > 0 ? 'disponible' : 'agotado'}">
-                            ${p.stock > 0 ? 'Stock: ' + p.stock : 'Agotado'}
+                            ${p.stock > 0 ? 'Disponible' : 'Agotado'}
                         </span>
                         <h3>${p.nombre}</h3>
-                        <span class="precio">$${p.precio}</span>
-                        <button class="btn-seleccionar" onclick="seleccionar('${p.nombre}')" ${p.stock <= 0 ? 'disabled' : ''}>
-                            ${p.stock > 0 ? 'Seleccionar' : 'Sin Stock'}
-                        </button>
+                        <div class="precio">$${p.precio}</div>
+                        <button class="btn-seleccionar" onclick="seleccionar('${p.nombre}')">Consultar</button>
                     </div>
                 `;
                 contenedor.appendChild(card);
             });
         }
 
-        function cambiarFoto(pIdx, imgIdx, el) {
-            const imgElement = document.getElementById(`foto-${pIdx}`);
-            imgElement.style.opacity = "0.5";
-            imgElement.src = productos[pIdx].imagenes[imgIdx];
-            imgElement.onload = () => imgElement.style.opacity = "1";
-            
-            el.parentElement.querySelectorAll('.punto').forEach(p => p.classList.remove('activo'));
-            el.classList.add('activo');
+        // Seleccionar producto y desplazar hacia el formulario
+        function seleccionar(nombreProducto) {
+            document.getElementById('txt-mensaje').value = "Hola, estoy interesado en el producto: " + nombreProducto;
+            document.getElementById('contacto').scrollIntoView({ behavior: 'smooth' });
         }
 
-        function mover(dir) {
-            const ancho = 300;
-            const limite = Math.max(0, (productos.length - 1) * ancho);
-            scrollPos += (dir * -ancho);
-            if (scrollPos < -limite) scrollPos = -limite;
-            if (scrollPos > 0) scrollPos = 0;
-            document.getElementById('catalogo').style.transform = `translateX(${scrollPos}px)`;
-        }
-
-        function seleccionar(nom) {
-            document.getElementById('txt-mensaje').value = "Hola Mis Usados, me interesa el producto: " + nom;
-            document.getElementById('pedido-seccion').scrollIntoView();
-        }
-
-        // ==========================================
-        // LÓGICA DE ENVÍO DE CORREO (FUNCIÓN PRINCIPAL)
-        // ==========================================
+        // Enviar formulario mediante EmailJS pasándole explícitamente la PUBLIC_KEY
         function enviarCorreo(event) {
             event.preventDefault();
 
             const btn = document.getElementById('btn-enviar');
             const respuesta = document.getElementById('mensaje-respuesta');
 
-            if (PUBLIC_KEY === "6vG6g-_5OuHo7EQwG") {
-                respuesta.style.color = "red";
-                respuesta.innerText = "Error: Faltan ingresar las claves de EmailJS en el código.";
+            btn.innerText = "Enviando...";
+            btn.disabled = true;
+
+            // Validación de seguridad previa al envío
+            if (PUBLIC_KEY === "6vG6g-_5OuHo7EQwG" || SERVICE_ID === "service_vgl5ahr") {
+                respuesta.style.color = "var(--error)";
+                respuesta.innerText = "Error: Por favor reemplaza las claves de EmailJS en las constantes del código.";
+                btn.innerText = "Enviar Consulta";
+                btn.disabled = false;
                 return;
             }
 
-            btn.innerText = "Enviando pedido...";
-            btn.disabled = true;
-
-            emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, '#form-pedido')
-                .then(() => {
-                    btn.innerText = "Enviar Pedido a mi Correo";
+            // Envío con paso explícito de la clave pública como 4º argumento
+            emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, '#form-pedido', PUBLIC_KEY)
+                .then((result) => {
+                    console.log("Éxito al enviar correo:", result.text);
+                    btn.innerText = "Enviar Consulta";
                     btn.disabled = false;
                     respuesta.style.color = "var(--exito)";
-                    respuesta.innerText = "¡Gracias! Tu consulta ha sido enviada con éxito. Te responderemos pronto.";
+                    respuesta.innerText = "¡Consulta enviada con éxito!";
                     document.getElementById('form-pedido').reset();
-                }, (err) => {
-                    btn.innerText = "Enviar Pedido a mi Correo";
+                })
+                .catch((error) => {
+                    console.error("Error al enviar mediante EmailJS:", error);
+                    btn.innerText = "Enviar Consulta";
                     btn.disabled = false;
                     respuesta.style.color = "var(--error)";
-                    respuesta.innerText = "Ocurrió un error al enviar el correo. Por favor, intenta de nuevo.";
-                    console.error("Error EmailJS:", err);
+                    const detalle = error.text || error.message || "Error de autenticación";
+                    respuesta.innerText = "Error al enviar: " + detalle;
                 });
         }
-<!-- Disparo manual para GitHub Pages -->
+
         window.onload = cargarDatos;
     </script>
 </body>

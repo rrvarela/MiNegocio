@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Usados | Catálogo Digital</title>
     
-    <!-- Librería oficial de EmailJS (SDK Browser v3) -->
+    <!-- Cargador oficial del SDK Browser v3 de EmailJS -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
     <style>
@@ -144,14 +144,14 @@
         <div class="grid-productos" id="catalogo"></div>
     </div>
 
-    <!-- Sección de Formulario de Consulta -->
+    <!-- Sección del Formulario de Contacto -->
     <section class="seccion-contacto" id="contacto">
         <div style="max-width: 500px; margin: auto;">
             <h2 style="text-align: center;">Consulta por Correo</h2>
             
             <form id="form-pedido" onsubmit="enviarCorreo(event)">
-                <input type="text" name="nombre_cliente" placeholder="Tu nombre completo" required>
-                <input type="email" name="email_cliente" placeholder="Tu correo electrónico" required>
+                <input type="text" id="campo-nombre" name="nombre_cliente" placeholder="Tu nombre completo" required>
+                <input type="email" id="campo-email" name="email_cliente" placeholder="Tu correo electrónico" required>
                 <textarea id="txt-mensaje" name="detalle_pedido" rows="4" placeholder="Escribe tu consulta o selecciona un producto..." required></textarea>
                 
                 <button type="submit" id="btn-enviar">Enviar Consulta</button>
@@ -164,26 +164,23 @@
     <script>
         // =========================================================================
         // CONFIGURACIÓN DE CREDENCIALES DE EMAILJS
-        // Sustituye las cadenas entre comillas por tus datos exactos de EmailJS
         // =========================================================================
-        const PUBLIC_KEY = "6vG6g-_5OuHo7EQwG";
-        const SERVICE_ID = "service_vgl5ahr";
-        const TEMPLATE_ID = "template_zwyzlcu";
+        const PUBLIC_KEY  = "6vG6g-_5OuHo7EQwG";  
+        const SERVICE_ID  = "service_vgl5ahr";  
+        const TEMPLATE_ID = "template_zwyzlcu"; 
 
-        // Inicialización del SDK de EmailJS
+        // Inicialización segura del SDK de EmailJS
         (function() {
-            if (PUBLIC_KEY !== "6vG6g-_5OuHo7EQwG" && PUBLIC_KEY.trim() !== "") {
+            if (PUBLIC_KEY.trim() !== "") {
                 emailjs.init(PUBLIC_KEY);
-                console.log("EmailJS inicializado correctamente.");
-            } else {
-                console.warn("Advertencia: Configura tu Public Key real en las constantes JavaScript.");
+                console.log("SDK de EmailJS inicializado con éxito.");
             }
         })();
 
-        // Enlace CSV publicado de Google Sheets
+        // Enlace CSV de Google Sheets
         const URL_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3fcYWk6ira5SgkWGjS5-tVBvFAMPGUS9ggADgr-Wg8OzWRZGU47SehGfNIFc3EA/pub?output=csv";
 
-        // Función para transformar enlaces compartidos de Google Drive en enlaces de imagen directa
+        // Función para transformar URLs de Google Drive a imágenes visibles
         function convertirLinkDrive(url) {
             if (!url || url.trim().length < 10) return null;
             const cleanUrl = url.trim().replace(/"/g, '');
@@ -198,7 +195,7 @@
             return id ? `https://lh3.googleusercontent.com/d/${id}` : cleanUrl;
         }
 
-        // Cargar productos desde Google Sheets
+        // Carga de catálogo dinámico
         async function cargarDatos() {
             try {
                 const res = await fetch(URL_CSV + "&t=" + new Date().getTime());
@@ -225,7 +222,7 @@
             }
         }
 
-        // Mostrar productos en pantalla
+        // Renderizado del catálogo en HTML
         function renderizar(productos) {
             const contenedor = document.getElementById('catalogo');
             contenedor.innerHTML = "";
@@ -248,48 +245,54 @@
             });
         }
 
-        // Seleccionar producto y desplazar hacia el formulario
+        // Seleccionar producto y scroll hacia el formulario
         function seleccionar(nombreProducto) {
             document.getElementById('txt-mensaje').value = "Hola, estoy interesado en el producto: " + nombreProducto;
             document.getElementById('contacto').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Enviar formulario mediante EmailJS pasándole explícitamente la PUBLIC_KEY
+        // Función para enviar correo mediante mapeo explícito de objetos
         function enviarCorreo(event) {
             event.preventDefault();
 
             const btn = document.getElementById('btn-enviar');
             const respuesta = document.getElementById('mensaje-respuesta');
 
-            btn.innerText = "Enviando...";
+            const nombreInput = document.getElementById('campo-nombre').value;
+            const emailInput = document.getElementById('campo-email').value;
+            const mensajeInput = document.getElementById('txt-mensaje').value;
+
+            btn.innerText = "Enviando consulta...";
             btn.disabled = true;
 
-            // Validación de seguridad previa al envío
-           // if (PUBLIC_KEY === "6vG6g-_5OuHo7EQwG" || SERVICE_ID === "service_vgl5ahr") {
-             //   respuesta.style.color = "var(--error)";
-            //  respuesta.innerText = "Error: Por favor reemplaza las claves de EmailJS en las constantes del código.";
-           //     btn.innerText = "Enviar Consulta";
-             //   btn.disabled = false;
-               // return;
-           // }
+            // Mapeo completo de variables compatibles con cualquier plantilla de EmailJS
+            const templateParams = {
+                nombre_cliente: nombreInput,
+                email_cliente: emailInput,
+                detalle_pedido: mensajeInput,
+                from_name: nombreInput,
+                from_email: emailInput,
+                message: mensajeInput,
+                to_name: "Administrador"
+            };
 
-            // Envío con paso explícito de la clave pública como 4º argumento
-            emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, '#form-pedido', PUBLIC_KEY)
+            // Envío con el método emailjs.send
+            emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY)
                 .then((result) => {
-                    console.log("Éxito al enviar correo:", result.text);
+                    console.log("Correo enviado con éxito:", result.text);
                     btn.innerText = "Enviar Consulta";
                     btn.disabled = false;
                     respuesta.style.color = "var(--exito)";
-                    respuesta.innerText = "¡Consulta enviada con éxito!";
+                    respuesta.innerText = "¡Consulta enviada con éxito! Te responderemos a la brevedad.";
                     document.getElementById('form-pedido').reset();
                 })
                 .catch((error) => {
-                    console.error("Error al enviar mediante EmailJS:", error);
+                    console.error("Detalle del error:", error);
                     btn.innerText = "Enviar Consulta";
                     btn.disabled = false;
                     respuesta.style.color = "var(--error)";
-                    const detalle = error.text || error.message || "Error de autenticación";
-                    respuesta.innerText = "Error al enviar: " + detalle;
+                    const detalle = error.text || error.message || "Error al procesar el envío";
+                    respuesta.innerText = "Ocurrió un error al enviar: " + detalle;
                 });
         }
 
